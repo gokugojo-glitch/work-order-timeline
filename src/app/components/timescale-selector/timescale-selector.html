@@ -1,0 +1,23 @@
+<div class="timescale-bar">
+  <div class="nav-controls">
+    <button class="nav-btn" (click)="navigate('left')" title="Previous">
+      <span class="arrow">&#8249;</span>
+    </button>
+    <button class="today-btn" (click)="goToToday()">Today</button>
+    <button class="nav-btn" (click)="navigate('right')" title="Next">
+      <span class="arrow">&#8250;</span>
+    </button>
+  </div>
+
+  <div class="zoom-controls">
+    @for (option of zoomOptions; track option.value) {
+      <button
+        class="zoom-btn"
+        [class.active]="timelineService.zoomLevel() === option.value"
+        (click)="setZoom(option.value)"
+      >1
+        {{ option.label }}
+      </button>
+    }
+  </div>
+</div>

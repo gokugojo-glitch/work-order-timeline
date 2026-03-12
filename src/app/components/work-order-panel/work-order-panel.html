@@ -1,0 +1,81 @@
+<div class="panel-overlay" (click)="close()"></div>
+<div class="panel-container">
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-row">
+      <h3 class="panel-title">{{ workOrder().data.name }}</h3>
+      <button class="close-btn" (click)="close()" title="Close">
+        &times;
+      </button>
+    </div>
+    <span class="panel-id">{{ workOrder().docId }}</span>
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body">
+    <!-- Status -->
+    <div class="panel-field">
+      <label class="field-label">Status</label>
+      <div class="status-selector">
+        @for (option of statusOptions; track option.value) {
+          <button
+            class="status-chip"
+            [class.active]="workOrder().data.status === option.value"
+            [ngStyle]="{
+              backgroundColor:
+                workOrder().data.status === option.value
+                  ? option.bgColor
+                  : '#f3f4f6',
+              color:
+                workOrder().data.status === option.value
+                  ? option.color
+                  : '#6b7280',
+              borderColor:
+                workOrder().data.status === option.value
+                  ? option.color
+                  : 'transparent'
+            }"
+            (click)="onStatusChange(option.value)"
+          >
+            <span
+              class="chip-dot"
+              [ngStyle]="{ backgroundColor: option.color }"
+            ></span>
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Work Center -->
+    <div class="panel-field">
+      <label class="field-label">Work Center</label>
+      <div class="field-value">{{ workCenterName() }}</div>
+    </div>
+
+    <!-- Dates -->
+    <div class="panel-field-row">
+      <div class="panel-field">
+        <label class="field-label">Start Date</label>
+        <div class="field-value">{{ formattedStart() }}</div>
+      </div>
+      <div class="panel-field">
+        <label class="field-label">End Date</label>
+        <div class="field-value">{{ formattedEnd() }}</div>
+      </div>
+    </div>
+
+    <!-- Duration -->
+    <div class="panel-field">
+      <label class="field-label">Duration</label>
+      <div class="field-value">{{ duration() }} day{{ duration() > 1 ? 's' : '' }}</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="panel-footer">
+    <button class="delete-btn" (click)="onDelete()">
+      🗑 Delete Work Order
+    </button>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<div class="timeline-grid-wrapper">
+  <!-- LEFT SIDEBAR: Work Center Names -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-top"></div>
+      <div class="sidebar-header-bottom">Work Center</div>
+    </div>
+    <div class="sidebar-body">
+      @for (row of workCenterRows(); track row.workCenter.docId) {
+        <div
+          class="sidebar-row"
+          [style.height.px]="ROW_HEIGHT"
+        >
+          <span class="wc-name">
+            {{ row.workCenter.data.name }}
+          </span>
+          <span class="wc-count">
+            {{ row.orders.length }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: Timeline Grid -->
+  <div class="grid-scroll-container">
+    <div
+      class="grid-inner"
+      [style.width.px]="timelineService.totalWidth()"
+    >
+      <!-- Header -->
+      <div class="grid-header">
+        <!-- Month row -->
+        <div class="month-row">
+          @for (group of monthGroups(); track group.label) {
+            <div
+              class="month-cell"
+              [style.width.px]="
+                group.span * timelineService.pxPerDay()
+              "
+            >
+              {{ group.label }}
+            </div>
+          }
+        </div>
+        <!-- Day row -->
+        <div class="day-row">
+          @for (date of visibleDates(); track date.toISOString()) {
+            <div
+              class="day-cell"
+              [class.today]="isToday(date)"
+              [class.weekend]="isWeekend(date)"
+              [style.width.px]="timelineService.pxPerDay()"
+            >
+              <span class="day-name">{{ getDayName(date) }}</span>
+              <span class="day-number">{{ formatDate(date) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Body rows -->
+      <div class="grid-body">
+        <!-- Column lines -->
+        <div class="column-lines">
+          @for (date of visibleDates(); track date.toISOString()) {
+            <div
+              class="col-line"
+              [class.weekend]="isWeekend(date)"
+              [style.width.px]="timelineService.pxPerDay()"
+            ></div>
+          }
+        </div>
+
+        <!-- Today marker -->
+        @if (isTodayVisible()) {
+          <div
+            class="today-marker"
+            [style.left.px]="todayOffset()"
+          >
+            <div class="today-dot"></div>
+            <div class="today-line"></div>
+          </div>
+        }
+
+        <!-- Work order rows -->
+        @for (row of workCenterRows(); track row.workCenter.docId) {
+          <div
+            class="grid-row"
+            [style.height.px]="ROW_HEIGHT"
+          >
+            @for (order of row.orders; track order.docId) {
+              <app-work-order-bar
+                [workOrder]="order"
+                (barClicked)="onBarClicked($event)"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Panel -->
+@if (selectedWorkOrder) {
+  <app-work-order-panel
+    [workOrder]="selectedWorkOrder"
+    (closePanel)="closePanel()"
+  />
+}

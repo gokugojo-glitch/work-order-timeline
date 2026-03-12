@@ -1,0 +1,44 @@
+.work-order-bar {
+  position: absolute;
+  top: 6px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 2;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &:hover {
+    filter: brightness(0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+    z-index: 10;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.bar-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1f2937;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 6px;
+  user-select: none;
+}
+
+.bar-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

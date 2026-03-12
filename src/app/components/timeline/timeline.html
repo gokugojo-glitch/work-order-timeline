@@ -1,0 +1,53 @@
+<div class="timeline-container">
+  <!-- Top Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <h2 class="toolbar-title">📅 Work Order Schedule</h2>
+    </div>
+    <div class="toolbar-right">
+      <!-- Search -->
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search work orders..."
+          [ngModel]="searchQuery"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </div>
+
+      <!-- Status Filter -->
+      <div class="filter-group">
+        <button
+          class="filter-btn"
+          [class.active]="workOrderService.statusFilter() === 'all'"
+          (click)="onStatusFilter('all')"
+        >
+          All
+        </button>
+        @for (option of statusOptions; track option.value) {
+          <button
+            class="filter-btn"
+            [class.active]="
+              workOrderService.statusFilter() === option.value
+            "
+            (click)="onStatusFilter(option.value)"
+          >
+            <span
+              class="filter-dot"
+              [ngStyle]="{ backgroundColor: option.color }"
+            ></span>
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Timescale Controls -->
+  <app-timescale-selector />
+
+  <!-- Grid -->
+  <app-timeline-grid />
+</div>

@@ -1,0 +1,11 @@
+<div
+  class="work-order-bar"
+  [ngStyle]="barStyle()"
+  [title]="workOrder().data.name + ' (' + statusLabel() + ')'"
+  (click)="onClick()"
+>
+  @if (showLabel()) {
+    <span class="bar-label">{{ workOrder().data.name }}</span>
+  }
+  <div class="bar-status-dot" [ngStyle]="{ backgroundColor: statusColor() }"></div>
+</div>
