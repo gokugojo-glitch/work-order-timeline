@@ -1,19 +1,47 @@
 import { WorkCenterDocument } from '../models/work-center.model';
 import { WorkOrderDocument } from '../models/work-order.model';
-
+/*
+* mock data for the timeline.
+* */
+/*
+* How Services Consume This
+* sample-data.ts
+    │
+    ├──► WorkCenterService (loads SAMPLE_WORK_CENTERS)
+    │
+    └──► WorkOrderService (loads SAMPLE_WORK_ORDERS)
+              │
+              ├──► filters by status
+              ├──► filters by search query
+              └──► groups by workCenterId
+*/
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-
+/*
+* Creates dates relative to today.
+* addDays(today, -8) = 8 days ago.
+* addDays(today, 4) = 4 days from now.
+* */
 function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
   return d;
 }
-
+/*
+* Converts Date → "2025-06-25" string format
+* */
 function fmt(date: Date): string {
   return date.toISOString().split('T')[0];
 }
-
+/*
+* wc-1 → Extrusion Line A
+wc-2 → CNC Machine 1
+wc-3 → Assembly Station
+wc-4 → Quality Control
+wc-5 → Packaging Line
+wc-6 → Welding Bay
+These are the rows in the sidebar.
+*/
 export const SAMPLE_WORK_CENTERS: WorkCenterDocument[] = [
   { docId: 'wc-1', docType: 'workCenter', data: { name: 'Extrusion Line A' } },
   { docId: 'wc-2', docType: 'workCenter', data: { name: 'CNC Machine 1' } },
