@@ -20,7 +20,7 @@ export class TimelineService {
       case 'week':
         return 40;
       case 'month':
-        return 12;
+        return 27;
       default:
         return 40;
     }
