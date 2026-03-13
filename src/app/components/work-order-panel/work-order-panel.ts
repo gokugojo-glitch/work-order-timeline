@@ -17,6 +17,10 @@ import { WorkOrderService } from '../../services/work-order.service';
   templateUrl: './work-order-panel.html',
   styleUrls: ['./work-order-panel.scss'],
 })
+
+/*
+ * This is the slide-in detail panel that appears when you click a Gantt bar.
+ * */
 export class WorkOrderPanelComponent {
   private readonly workCenterService = inject(WorkCenterService);
   private readonly workOrderService = inject(WorkOrderService);
@@ -27,9 +31,7 @@ export class WorkOrderPanelComponent {
   readonly statusOptions = STATUS_OPTIONS;
 
   readonly workCenterName = computed(() => {
-    return this.workCenterService.getWorkCenterName(
-      this.workOrder().data.workCenterId
-    );
+    return this.workCenterService.getWorkCenterName(this.workOrder().data.workCenterId);
   });
 
   readonly statusColors = computed(() => {
@@ -37,9 +39,7 @@ export class WorkOrderPanelComponent {
   });
 
   readonly statusLabel = computed(() => {
-    const found = STATUS_OPTIONS.find(
-      (s) => s.value === this.workOrder().data.status
-    );
+    const found = STATUS_OPTIONS.find((s) => s.value === this.workOrder().data.status);
     return found ? found.label : this.workOrder().data.status;
   });
 
@@ -60,10 +60,7 @@ export class WorkOrderPanelComponent {
   });
 
   onStatusChange(newStatus: WorkOrderStatus): void {
-    this.workOrderService.updateWorkOrderStatus(
-      this.workOrder().docId,
-      newStatus
-    );
+    this.workOrderService.updateWorkOrderStatus(this.workOrder().docId, newStatus);
   }
 
   onDelete(): void {
@@ -80,8 +77,18 @@ export class WorkOrderPanelComponent {
   private formatDate(dateStr: string): string {
     const date = new Date(dateStr + 'T00:00:00');
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   }

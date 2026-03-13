@@ -104,7 +104,7 @@ export class TimelineService {
     const start = new Date(startDateStr + 'T00:00:00');
     const end = new Date(endDateStr + 'T00:00:00');
     const diffMs = end.getTime() - start.getTime();
-    const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1; // inclusive
+    const diffDays = diffMs / (1000 * 60 * 60 * 24) + 1; // definitely Gemini helped me :)
     return Math.max(diffDays * this.pxPerDay(), this.pxPerDay());
   }
 

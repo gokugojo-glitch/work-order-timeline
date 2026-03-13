@@ -14,6 +14,16 @@ import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel';
   templateUrl: './timeline-grid.html',
   styleUrls: ['./timeline-grid.scss'],
 })
+/*
+ * This is the largest and most important component. It renders the entire Gantt chart grid.
+ * first it gets all work centers
+ * get grouped orders map
+ * combines into rows
+ * filter out empty rows
+ * includes some helper methods too!
+ * sidebar renders work center names
+ * grid renders bars for each work center rows
+ * */
 export class TimelineGridComponent {
   readonly timelineService = inject(TimelineService);
   readonly workCenterService = inject(WorkCenterService);
@@ -46,38 +56,42 @@ export class TimelineGridComponent {
   readonly todayOffset = computed(() => {
     return this.timelineService.getTodayOffset();
   });
-
+  /*
+   * Should we show today line?*/
   readonly isTodayVisible = computed(() => {
     const offset = this.todayOffset();
     const totalWidth = this.timelineService.totalWidth();
     return offset >= 0 && offset <= totalWidth;
   });
-
+  /*
+  Highlights Today's column in blue
+  */
   isToday(date: Date): boolean {
     return this.timelineService.isToday(date);
   }
-
+  /*
+   * Shades Saturday/Sunday columns grey
+   * */
   isWeekend(date: Date): boolean {
     const day = date.getDay();
     return day === 0 || day === 6;
   }
 
   formatDate(date: Date): string {
-    return this.timelineService.formatHeaderDate(
-      date,
-      this.timelineService.zoomLevel()
-    );
+    return this.timelineService.formatHeaderDate(date, this.timelineService.zoomLevel());
   }
 
   getDayName(date: Date): string {
     const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     return days[date.getDay()];
   }
-
+  /*
+  * when the bar is clicked, stores the order and panel appears*/
   onBarClicked(order: WorkOrderDocument): void {
     this.selectedWorkOrder = order;
   }
-
+  /*
+  * when panel closes, its set to null and panel disappears*/
   closePanel(): void {
     this.selectedWorkOrder = null;
   }
