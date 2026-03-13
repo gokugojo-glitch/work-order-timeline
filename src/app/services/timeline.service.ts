@@ -5,6 +5,27 @@ import { ZoomLevel } from '../models/work-order.model';
   providedIn: 'root',
 })
 export class TimelineService {
+/*
+*
+ Data Flow Summary
+ User changes zoom
+│
+▼
+  zoomLevel signal updates
+│
+▼
+  pxPerDay recomputes (80/40/28)
+│
+├──► totalWidth recomputes
+│
+├──► Every bar recalculates
+│    left position & width
+│
+├──► Grid columns resize
+│
+└──► Today marker repositions
+*
+*/
   // Zoom level signal
   readonly zoomLevel = signal<ZoomLevel>('week');
 
@@ -49,6 +70,7 @@ export class TimelineService {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() - 14);
+    console.log("Default Start: " + d);
     return d;
   }
 
@@ -56,6 +78,7 @@ export class TimelineService {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() + 21);
+    console.log("Default End: " + d);
     return d;
   }
 
@@ -64,7 +87,7 @@ export class TimelineService {
   }
 
   /**
-   * Returns the left offset in pixels for a given date
+   * Returns the left offset in pixels for a given date, This tells each bar where to start
    */
   getDateOffset(dateStr: string): number {
     const date = new Date(dateStr + 'T00:00:00');
@@ -75,7 +98,7 @@ export class TimelineService {
   }
 
   /**
-   * Returns the width in pixels between two dates
+   * Returns the width in pixels between two dates, This tells each bar how wide to be
    */
   getDateWidth(startDateStr: string, endDateStr: string): number {
     const start = new Date(startDateStr + 'T00:00:00');
@@ -98,7 +121,7 @@ export class TimelineService {
   }
 
   /**
-   * Returns the offset of today's marker
+   * Returns the offset of today's marker, Returns pixel position of the red vertical "today" line, centered in today's column cell.
    */
   getTodayOffset(): number {
     const today = new Date();
@@ -107,7 +130,7 @@ export class TimelineService {
   }
 
   /**
-   * Navigate timeline left/right
+   * Navigate timeline left (shifts range 7 days back) / right (shifts range 7 days forward)
    */
   navigate(direction: 'left' | 'right'): void {
     const shift = direction === 'left' ? -7 : 7;
@@ -150,7 +173,7 @@ export class TimelineService {
   }
 
   /**
-   * Get month-year groups for top header row
+   * Get month-year groups for top header row, Groups consecutive dates by month for the top header row
    */
   getMonthGroups(): { label: string; span: number }[] {
     const dates = this.visibleDates();
