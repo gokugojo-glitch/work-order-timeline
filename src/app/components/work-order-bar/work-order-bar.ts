@@ -14,11 +14,13 @@ import { TimelineService } from '../../services/timeline.service';
  * Each Bar is like one work order*/
 export class WorkOrderBarComponent {
   private readonly timelineService = inject(TimelineService);
-
   readonly workOrder = input.required<WorkOrderDocument>();
   readonly barClicked = output<WorkOrderDocument>();
-
-/*
+  readonly barRightClicked = output<{
+    event: MouseEvent;
+    order: WorkOrderDocument;
+  }>();
+  /*
 * This single computed does 4 things:
 * LEFT position → where bar starts
    startDate='2025-06-25', rangeStart='2025-06-11'
@@ -73,5 +75,13 @@ export class WorkOrderBarComponent {
   // when user clicks the bar, emits the work order --> parent(TimelineGridComponent) receives it --> Opens the detail panel
   onClick(): void {
     this.barClicked.emit(this.workOrder());
+  }
+  onRightClick(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.barRightClicked.emit({
+      event,
+      order: this.workOrder(),
+    });
   }
 }

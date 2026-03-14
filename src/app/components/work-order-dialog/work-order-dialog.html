@@ -1,0 +1,106 @@
+<div class="dialog-overlay" (click)="onOverlayClick($event)">
+  <div class="dialog-container">
+    <!-- Header -->
+    <div class="dialog-header">
+      <h3 class="dialog-title">{{ dialogTitle }}</h3>
+      <button class="close-btn" (click)="onCancel()">
+        &times;
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <!-- Name -->
+      <div class="form-field">
+        <label class="field-label">Name</label>
+        <input
+          type="text"
+          class="field-input"
+          placeholder="Enter work order name..."
+          [(ngModel)]="name"
+          autofocus
+        />
+      </div>
+
+      <!-- Work Center -->
+      <div class="form-field">
+        <label class="field-label">Work Center</label>
+        <select class="field-select" [(ngModel)]="workCenterId">
+          @for (wc of workCenters(); track wc.docId) {
+            <option [value]="wc.docId">
+              {{ wc.data.name }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Status -->
+      <div class="form-field">
+        <label class="field-label">Status</label>
+        <div class="status-selector">
+          @for (opt of statusOptions; track opt.value) {
+            <button
+              class="status-chip"
+              [class.active]="status === opt.value"
+              [ngStyle]="{
+                backgroundColor:
+                  status === opt.value ? opt.bgColor : '#f3f4f6',
+                color:
+                  status === opt.value ? opt.color : '#6b7280',
+                borderColor:
+                  status === opt.value ? opt.color : 'transparent'
+              }"
+              (click)="status = opt.value"
+            >
+              <span
+                class="chip-dot"
+                [ngStyle]="{ backgroundColor: opt.color }"
+              ></span>
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="form-row">
+        <div class="form-field">
+          <label class="field-label">Start Date</label>
+          <input
+            type="date"
+            class="field-input"
+            [(ngModel)]="startDate"
+          />
+        </div>
+        <div class="form-field">
+          <label class="field-label">End Date</label>
+          <input
+            type="date"
+            class="field-input"
+            [(ngModel)]="endDate"
+          />
+        </div>
+      </div>
+
+      @if (dateError) {
+        <div class="error-msg">
+          ⚠ End date must be after start date
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button class="cancel-btn" (click)="onCancel()">
+        Cancel
+      </button>
+      <button
+        class="save-btn"
+        [disabled]="!isValid"
+        (click)="onSave()"
+      >
+        {{ isEditMode ? 'Save Changes' : 'Create Order' }}
+      </button>
+    </div>
+  </div>
+</div>

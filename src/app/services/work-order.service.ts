@@ -40,9 +40,9 @@ export class WorkOrderService {
     return orders;
   });
   /*
-  * Group filtered work orders by work center ID
-  * The timeline grid uses this map to render rows
-  * */
+   * Group filtered work orders by work center ID
+   * The timeline grid uses this map to render rows
+   * */
   readonly groupedByWorkCenter = computed(() => {
     const map = new Map<string, WorkOrderDocument[]>();
     for (const order of this.filteredWorkOrders()) {
@@ -55,8 +55,8 @@ export class WorkOrderService {
     return map;
   });
   /*
-  * if at all we need to get orders based on Work Center
-  * */
+   * if at all we need to get orders based on Work Center
+   * */
   getOrdersByWorkCenter(workCenterId: string): WorkOrderDocument[] {
     return this.filteredWorkOrders().filter((o) => o.data.workCenterId === workCenterId);
   }
@@ -105,5 +105,11 @@ export class WorkOrderService {
 
   getWorkOrderById(docId: string): WorkOrderDocument | undefined {
     return this.workOrders().find((o) => o.docId === docId);
+  }
+
+  updateWorkOrder(updated: WorkOrderDocument): void {
+    this.workOrders.update((orders) =>
+      orders.map((o) => (o.docId === updated.docId ? updated : o)),
+    );
   }
 }

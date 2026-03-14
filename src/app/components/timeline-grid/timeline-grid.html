@@ -1,5 +1,5 @@
-<div class="timeline-grid-wrapper">
-  <!-- LEFT SIDEBAR: Work Center Names -->
+<div class="timeline-grid-wrapper" (click)="onGridClick()">
+  <!-- LEFT SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-header-top"></div>
@@ -52,14 +52,18 @@
               [class.weekend]="isWeekend(date)"
               [style.width.px]="timelineService.pxPerDay()"
             >
-              <span class="day-name">{{ getDayName(date) }}</span>
-              <span class="day-number">{{ formatDate(date) }}</span>
+              <span class="day-name">
+                {{ getDayName(date) }}
+              </span>
+              <span class="day-number">
+                {{ formatDate(date) }}
+              </span>
             </div>
           }
         </div>
       </div>
 
-      <!-- Body rows -->
+      <!-- Body -->
       <div class="grid-body">
         <!-- Column lines -->
         <div class="column-lines">
@@ -93,6 +97,7 @@
               <app-work-order-bar
                 [workOrder]="order"
                 (barClicked)="onBarClicked($event)"
+                (barRightClicked)="onBarRightClick($event.event, $event.order)"
               />
             }
           </div>
@@ -102,10 +107,38 @@
   </div>
 </div>
 
-<!-- Detail Panel -->
+<!-- Detail Panel (click on bar) -->
 @if (selectedWorkOrder) {
   <app-work-order-panel
     [workOrder]="selectedWorkOrder"
     (closePanel)="closePanel()"
+  />
+}
+
+<!-- Context Menu (right-click on bar) -->
+@if (contextMenuVisible()) {
+  <app-context-menu
+    [x]="contextMenuX()"
+    [y]="contextMenuY()"
+    (edit)="onContextEdit()"
+    (deleteItem)="onContextDelete()"
+  />
+}
+
+<!-- Edit Dialog -->
+@if (editDialogVisible()) {
+  <app-work-order-dialog
+    [workOrder]="editingOrder()"
+    (save)="onEditSave($event)"
+    (cancel)="onEditCancel()"
+  />
+}
+
+<!-- Create Dialog -->
+@if (createDialogVisible()) {
+  <app-work-order-dialog
+    [workOrder]="null"
+    (save)="onCreateSave($event)"
+    (cancel)="onCreateCancel()"
   />
 }

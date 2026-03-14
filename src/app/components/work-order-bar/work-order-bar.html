@@ -3,9 +3,15 @@
   [ngStyle]="barStyle()"
   [title]="workOrder().data.name + ' (' + statusLabel() + ')'"
   (click)="onClick()"
+  (contextmenu)="onRightClick($event)"
 >
   @if (showLabel()) {
-    <span class="bar-label">{{ workOrder().data.name }}</span>
+    <span class="bar-label">
+      {{ workOrder().data.name }}
+    </span>
   }
-  <div class="bar-status-dot" [ngStyle]="{ backgroundColor: statusColor() }"></div>
+  <div
+    class="bar-status-dot"
+    [ngStyle]="{ backgroundColor: statusColor() }"
+  ></div>
 </div>
