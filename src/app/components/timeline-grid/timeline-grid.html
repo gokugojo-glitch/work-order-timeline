@@ -123,11 +123,14 @@
   </div>
 </div>
 
-<!-- ─── Detail Panel (click on bar) ─── -->
-@if (selectedWorkOrder) {
+<!-- ─── Detail Panel (click on bar / new order) ─── -->
+@if (selectedWorkOrder()) {
   <app-work-order-panel
-    [workOrder]="selectedWorkOrder"
+    [workOrder]="selectedWorkOrder()!"
+    [panelMode]="panelMode()"
     (closePanel)="closePanel()"
+    (orderSaved)="onOrderSaved($event)"
+    (orderDeleted)="closePanel()"
   />
 }
 
@@ -138,23 +141,5 @@
     [y]="contextMenuY()"
     (edit)="onContextEdit()"
     (deleteItem)="onContextDelete()"
-  />
-}
-
-<!-- ─── Edit Dialog ─── -->
-@if (editDialogVisible()) {
-  <app-work-order-dialog
-    [workOrder]="editingOrder()"
-    (save)="onEditSave($event)"
-    (cancel)="onEditCancel()"
-  />
-}
-
-<!-- ─── Create Dialog ─── -->
-@if (createDialogVisible()) {
-  <app-work-order-dialog
-    [workOrder]="null"
-    (save)="onCreateSave($event)"
-    (cancel)="onCreateCancel()"
   />
 }

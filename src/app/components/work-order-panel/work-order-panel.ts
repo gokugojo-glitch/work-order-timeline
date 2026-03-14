@@ -1,4 +1,14 @@
-import { Component, inject, input, output, computed, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  computed,
+  signal,
+  OnInit,
+  effect,
+  untracked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -95,13 +105,28 @@ export class WorkOrderPanelComponent implements OnInit {
 
   // ─── Lifecycle ───
 
+  constructor() {
+    // Re-populate form when workOrder changes or panelMode input changes
+    effect(() => {
+      const inputMode = this.panelMode();
+      // Track workOrder() to re-run when it changes
+      this.workOrder();
+
+      // We use untracked to allow writing to the internal 'mode' signal
+      // and other form properties without triggering infinite loops
+      untracked(() => {
+        this.mode.set(inputMode);
+        if (inputMode === 'edit') {
+          this.populateForm();
+        } else if (inputMode === 'create') {
+          this.initCreateForm();
+        }
+      });
+    });
+  }
+
   ngOnInit(): void {
-    this.mode.set(this.panelMode());
-    if (this.mode() === 'edit') {
-      this.populateForm();
-    } else if (this.mode() === 'create') {
-      this.initCreateForm();
-    }
+    // Initial population is handled by effects
   }
 
   // ─── Form Helpers ───
@@ -116,14 +141,25 @@ export class WorkOrderPanelComponent implements OnInit {
   }
 
   private initCreateForm(): void {
+    const initial = this.workOrder();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    this.formStartDate = today.toISOString().split('T')[0];
-    const next = new Date(today);
-    next.setDate(next.getDate() + 7);
-    this.formEndDate = next.toISOString().split('T')[0];
-    this.formStatus = 'open';
-    this.formWorkCenterId = this.workCenters().length > 0 ? this.workCenters()[0].docId : '';
+
+    this.formName = initial.data.name || '';
+    this.formStatus = initial.data.status || 'open';
+    this.formStartDate = initial.data.startDate || today.toISOString().split('T')[0];
+
+    if (initial.data.endDate) {
+      this.formEndDate = initial.data.endDate;
+    } else {
+      const next = new Date(this.formStartDate + 'T00:00:00');
+      next.setDate(next.getDate() + 7);
+      this.formEndDate = next.toISOString().split('T')[0];
+    }
+
+    this.formWorkCenterId =
+      initial.data.workCenterId ||
+      (this.workCenters().length > 0 ? this.workCenters()[0].docId : '');
   }
 
   // ─── Actions ───
