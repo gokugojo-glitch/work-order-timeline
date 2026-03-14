@@ -45,6 +45,10 @@ export class TimelineGridComponent {
   hoveredRowId = signal('');
   createDialogVisible = signal(false);
   createForWorkCenterId = signal('');
+  createButtonVisible = signal(false);
+  createButtonX = signal(0);
+  createButtonY = signal(0);
+  createButtonRowId = signal('');
 
   readonly ROW_HEIGHT = 44;
 
@@ -103,8 +107,8 @@ export class TimelineGridComponent {
     this.selectedWorkOrder = null;
   }
 
-  // ─── Right-Click → Context Menu ───
-  onBarRightClick(event: MouseEvent, order: WorkOrderDocument): void {
+  // ─── Menu Button Click → Context Menu ───
+  onBarMenuClick(event: MouseEvent, order: WorkOrderDocument): void {
     event.preventDefault();
     event.stopPropagation();
     this.contextMenuX.set(event.clientX);
@@ -149,8 +153,9 @@ export class TimelineGridComponent {
     this.editDialogVisible.set(false);
     this.editingOrder.set(null);
 
+    // Refresh selectedWorkOrder from service to ensure UI updates
     if (this.selectedWorkOrder?.docId === updated.docId) {
-      this.selectedWorkOrder = updated;
+      this.selectedWorkOrder = this.workOrderService.getWorkOrderById(updated.docId) || null;
     }
   }
 
@@ -162,17 +167,34 @@ export class TimelineGridComponent {
   // ─── Create Dialog ───
   onEmptySpaceClick(workCenterId: string, event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.closest('app-work-order-bar')) return;
 
+    // If clicking on work order bar or menu button, ignore
+    if (target.closest('app-work-order-bar') || target.closest('.create-order-btn')) {
+      return;
+    }
+
+    // Stop propagation to prevent onGridClick from hiding the button immediately
+    event.stopPropagation();
+
+    // Get click position relative to the row
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    // Show the create button at click position
     this.selectedWorkOrder = null;
-    this.createForWorkCenterId.set(workCenterId);
-    this.createDialogVisible.set(true);
+    this.createButtonVisible.set(true);
+    this.createButtonX.set(clickX);
+    this.createButtonY.set(clickY);
+    this.createButtonRowId.set(workCenterId);
   }
 
   onCreateSave(newOrder: WorkOrderDocument): void {
     this.workOrderService.addWorkOrder(newOrder);
     this.createDialogVisible.set(false);
     this.createForWorkCenterId.set('');
+    // Open the newly created order in the panel
+    this.selectedWorkOrder = this.workOrderService.getWorkOrderById(newOrder.docId) || null;
   }
 
   onCreateCancel(): void {
@@ -180,10 +202,14 @@ export class TimelineGridComponent {
     this.createForWorkCenterId.set('');
   }
 
-  // ─── Close context menu on outside click ───
+  // ─── Close context menu and create button on outside click ───
   onGridClick(): void {
     if (this.contextMenuVisible()) {
       this.closeContextMenu();
+    }
+    // Also hide create button when clicking elsewhere
+    if (this.createButtonVisible()) {
+      this.createButtonVisible.set(false);
     }
   }
 
@@ -197,8 +223,10 @@ export class TimelineGridComponent {
   }
 
   // ─── Create via button ───
-  onCreateNew(workCenterId: string): void {
+  onCreateNew(event: Event, workCenterId: string): void {
+    event.stopPropagation(); // Prevent triggering row click
     this.createForWorkCenterId.set(workCenterId);
     this.createDialogVisible.set(true);
+    this.createButtonVisible.set(false);
   }
 }

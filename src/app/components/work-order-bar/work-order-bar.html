@@ -2,8 +2,7 @@
   class="work-order-bar"
   [ngStyle]="barStyle()"
   [title]="workOrder().data.name + ' (' + statusLabel() + ')'"
-  (click)="onClick()"
-  (contextmenu)="onRightClick($event)"
+  (click)="onClick($event)"
 >
   @if (showLabel()) {
     <span class="bar-label">
@@ -14,4 +13,13 @@
     class="bar-status-dot"
     [ngStyle]="{ backgroundColor: statusColor() }"
   ></div>
+
+  <!-- Three-dot menu button (appears on hover) -->
+  <button
+    class="menu-button"
+    (click)="onMenuClick($event)"
+    title="Actions"
+  >
+    ⋮
+  </button>
 </div>

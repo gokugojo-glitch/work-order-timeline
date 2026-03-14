@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="context-menu" [style.left.px]="x()" [style.top.px]="y()">
+    <div class="context-menu" [style.left.px]="x()" [style.top.px]="y()" (click)="onMenuClick($event)">
       <button class="menu-item" (click)="edit.emit()">
         <span class="icon">✏️</span>
         <span>Edit</span>
@@ -80,4 +80,9 @@ export class ContextMenuComponent {
   readonly y = input.required<number>();
   readonly edit = output<void>();
   readonly deleteItem = output<void>();
+
+  onMenuClick(event: MouseEvent): void {
+    // Prevent click from bubbling up to the grid wrapper
+    event.stopPropagation();
+  }
 }

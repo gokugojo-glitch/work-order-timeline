@@ -34,6 +34,16 @@ export class WorkOrderPanelComponent implements OnInit {
 
   mode = signal<PanelMode>('view');
 
+  // Track the current work order reactively from the service
+  readonly currentWorkOrder = computed(() => {
+    const inputOrder = this.workOrder();
+    // In view mode, fetch from service to get latest data
+    if (this.mode() === 'view') {
+      return this.woService.getWorkOrderById(inputOrder.docId) || inputOrder;
+    }
+    return inputOrder;
+  });
+
   // Form fields
   formName = '';
   formWorkCenterId = '';
@@ -44,23 +54,23 @@ export class WorkOrderPanelComponent implements OnInit {
   // ─── Computed (View Mode) ───
 
   readonly workCenterName = computed(() =>
-    this.wcService.getWorkCenterName(this.workOrder().data.workCenterId),
+    this.wcService.getWorkCenterName(this.currentWorkOrder().data.workCenterId),
   );
 
-  readonly statusColors = computed(() => STATUS_COLOR_MAP[this.workOrder().data.status]);
+  readonly statusColors = computed(() => STATUS_COLOR_MAP[this.currentWorkOrder().data.status]);
 
   readonly statusLabel = computed(() => {
-    const found = STATUS_OPTIONS.find((s) => s.value === this.workOrder().data.status);
-    return found ? found.label : this.workOrder().data.status;
+    const found = STATUS_OPTIONS.find((s) => s.value === this.currentWorkOrder().data.status);
+    return found ? found.label : this.currentWorkOrder().data.status;
   });
 
-  readonly formattedStart = computed(() => this.formatDate(this.workOrder().data.startDate));
+  readonly formattedStart = computed(() => this.formatDate(this.currentWorkOrder().data.startDate));
 
-  readonly formattedEnd = computed(() => this.formatDate(this.workOrder().data.endDate));
+  readonly formattedEnd = computed(() => this.formatDate(this.currentWorkOrder().data.endDate));
 
   readonly duration = computed(() => {
-    const s = this.mode() === 'view' ? this.workOrder().data.startDate : this.formStartDate;
-    const e = this.mode() === 'view' ? this.workOrder().data.endDate : this.formEndDate;
+    const s = this.mode() === 'view' ? this.currentWorkOrder().data.startDate : this.formStartDate;
+    const e = this.mode() === 'view' ? this.currentWorkOrder().data.endDate : this.formEndDate;
     if (!s || !e) return 0;
     const start = new Date(s + 'T00:00:00');
     const end = new Date(e + 'T00:00:00');
@@ -97,7 +107,7 @@ export class WorkOrderPanelComponent implements OnInit {
   // ─── Form Helpers ───
 
   private populateForm(): void {
-    const d = this.workOrder().data;
+    const d = this.currentWorkOrder().data;
     this.formName = d.name;
     this.formWorkCenterId = d.workCenterId;
     this.formStatus = d.status;
@@ -134,7 +144,7 @@ export class WorkOrderPanelComponent implements OnInit {
   onSave(): void {
     if (!this.isFormValid()) return;
 
-    const existing = this.workOrder();
+    const existing = this.currentWorkOrder();
     const order: WorkOrderDocument = {
       docId: this.mode() === 'create' ? `wo-${Date.now()}` : existing.docId,
       docType: 'workOrder',
@@ -158,7 +168,7 @@ export class WorkOrderPanelComponent implements OnInit {
   }
 
   onDelete(): void {
-    const wo = this.workOrder();
+    const wo = this.currentWorkOrder();
     if (confirm(`Delete "${wo.data.name}"?`)) {
       this.woService.deleteWorkOrder(wo.docId);
       this.orderDeleted.emit(wo.docId);
@@ -168,7 +178,7 @@ export class WorkOrderPanelComponent implements OnInit {
 
   onStatusChipClick(status: WorkOrderStatus): void {
     if (this.mode() === 'view') {
-      this.woService.updateWorkOrderStatus(this.workOrder().docId, status);
+      this.woService.updateWorkOrderStatus(this.currentWorkOrder().docId, status);
     } else {
       this.formStatus = status;
     }

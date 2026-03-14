@@ -9,7 +9,7 @@
         } @else if (mode() === 'edit') {
           Edit Work Order
         } @else {
-          {{ workOrder().data.name }}
+          {{ currentWorkOrder().data.name }}
         }
       </h3>
       <button
@@ -21,7 +21,7 @@
       </button>
     </div>
     @if (mode() === 'view') {
-      <span class="panel-id">{{ workOrder().docId }}</span>
+      <span class="panel-id">{{ currentWorkOrder().docId }}</span>
     }
   </div>
 
@@ -32,7 +32,7 @@
       <label class="field-label">Name</label>
       @if (mode() === 'view') {
         <div class="field-value">
-          {{ workOrder().data.name }}
+          {{ currentWorkOrder().data.name }}
         </div>
       } @else {
         <input
@@ -53,25 +53,25 @@
             class="status-chip"
             [class.active]="
               mode() === 'view'
-                ? workOrder().data.status === option.value
+                ? currentWorkOrder().data.status === option.value
                 : formStatus === option.value
             "
             [ngStyle]="{
               backgroundColor:
                 (mode() === 'view'
-                  ? workOrder().data.status
+                  ? currentWorkOrder().data.status
                   : formStatus) === option.value
                   ? option.bgColor
                   : '#f3f4f6',
               color:
                 (mode() === 'view'
-                  ? workOrder().data.status
+                  ? currentWorkOrder().data.status
                   : formStatus) === option.value
                   ? option.color
                   : '#6b7280',
               borderColor:
                 (mode() === 'view'
-                  ? workOrder().data.status
+                  ? currentWorkOrder().data.status
                   : formStatus) === option.value
                   ? option.color
                   : 'transparent'

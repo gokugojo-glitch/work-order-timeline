@@ -94,21 +94,23 @@
             [style.height.px]="ROW_HEIGHT"
             (mouseenter)="onRowMouseEnter(row.workCenter.docId)"
             (mouseleave)="onRowMouseLeave()"
-            (dblclick)="onEmptySpaceClick(row.workCenter.docId, $event)"
+            (click)="onEmptySpaceClick(row.workCenter.docId, $event)"
           >
             @for (order of row.orders; track order.docId) {
               <app-work-order-bar
                 [workOrder]="order"
                 (barClicked)="onBarClicked($event)"
-                (barRightClicked)="onBarRightClick($event.event, $event.order)"
+                (menuOpened)="onBarMenuClick($event.event, $event.order)"
               />
             }
 
-            <!-- Create button on hover -->
-            @if (hoveredRowId() === row.workCenter.docId) {
+            <!-- Create button - positioned at click location -->
+            @if (createButtonVisible() && createButtonRowId() === row.workCenter.docId) {
               <button
                 class="create-order-btn"
-                (click)="onCreateNew(row.workCenter.docId)"
+                [style.left.px]="createButtonX()"
+                [style.top.px]="createButtonY()"
+                (click)="onCreateNew($event, row.workCenter.docId)"
                 title="Create new work order"
               >
                 + New Order
