@@ -47,3 +47,6 @@ Thumbs.db
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Environments (sensitive keys)
+src/environments/environment.prod.ts

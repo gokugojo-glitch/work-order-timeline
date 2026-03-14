@@ -223,7 +223,7 @@ describe('WorkOrderBarComponent', () => {
 
   it('should emit barClicked on click', () => {
     spyOn(component.barClicked, 'emit');
-    component.onClick();
+    component.onClick(new MouseEvent('click'));
     expect(component.barClicked.emit)
       .toHaveBeenCalledWith(mockWorkOrder);
   });

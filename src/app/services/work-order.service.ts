@@ -5,6 +5,7 @@ import {
 } from '../models/work-order.model';
 import { SAMPLE_WORK_ORDERS } from '../data/sample-data';
 import { SupabaseService } from './supabase.service';
+import { WorkCenterService } from './work-center.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,14 +21,17 @@ export class WorkOrderService {
   private readonly workOrders = signal<WorkOrderDocument[]>([]);
   private readonly useSupabase: boolean;
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private workCenterService: WorkCenterService,
+  ) {
     this.useSupabase = this.supabaseService.isConfigured();
     this.initialize();
   }
 
   private async initialize(): Promise<void> {
     if (this.useSupabase) {
-      await this.loadFromSupabase();
+      await this.loadFromSupabase(true);
       this.subscribeToChanges();
     } else {
       this.workOrders.set(this.loadFromStorage());
@@ -52,7 +56,14 @@ export class WorkOrderService {
 
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
-      orders = orders.filter((o) => o.data.name.toLowerCase().includes(query));
+      orders = orders.filter((o) => {
+        const orderNameMatches = o.data.name.toLowerCase().includes(query);
+        const workCenterName = this.workCenterService
+          .getWorkCenterName(o.data.workCenterId)
+          .toLowerCase();
+        const workCenterMatches = workCenterName.includes(query);
+        return orderNameMatches || workCenterMatches;
+      });
     }
     return orders;
   });
@@ -87,41 +98,51 @@ export class WorkOrderService {
   }
   // immutable updates
   updateWorkOrderStatus(docId: string, newStatus: WorkOrderStatus): void {
+    let updatedOrder: WorkOrderDocument | undefined;
     this.workOrders.update((orders) =>
-      orders.map((o) =>
-        o.docId === docId
-          ? {
-              ...o,
-              data: { ...o.data, status: newStatus },
-            }
-          : o,
-      ),
+      orders.map((o) => {
+        if (o.docId === docId) {
+          updatedOrder = {
+            ...o,
+            data: { ...o.data, status: newStatus },
+          };
+          return updatedOrder;
+        }
+        return o;
+      }),
     );
-    this.persist();
+    if (updatedOrder) {
+      this.persist(updatedOrder);
+    }
   }
   // immutable updates
   updateWorkOrderDates(docId: string, startDate: string, endDate: string): void {
+    let updatedOrder: WorkOrderDocument | undefined;
     this.workOrders.update((orders) =>
-      orders.map((o) =>
-        o.docId === docId
-          ? {
-              ...o,
-              data: { ...o.data, startDate, endDate },
-            }
-          : o,
-      ),
+      orders.map((o) => {
+        if (o.docId === docId) {
+          updatedOrder = {
+            ...o,
+            data: { ...o.data, startDate, endDate },
+          };
+          return updatedOrder;
+        }
+        return o;
+      }),
     );
-    this.persist();
+    if (updatedOrder) {
+      this.persist(updatedOrder);
+    }
   }
   // another mutation method, appends new order
   addWorkOrder(order: WorkOrderDocument): void {
     this.workOrders.update((orders) => [...orders, order]);
-    this.persist();
+    this.persist(order);
   }
   // another mutation method, deletes order by ID
   deleteWorkOrder(docId: string): void {
     this.workOrders.update((orders) => orders.filter((o) => o.docId !== docId));
-    this.persist();
+    this.persist(undefined, docId);
   }
 
   getWorkOrderById(docId: string): WorkOrderDocument | undefined {
@@ -134,12 +155,12 @@ export class WorkOrderService {
         o.docId === updated.docId ? updated : o
       )
     );
-    this.persist();
+    this.persist(updated);
   }
 
   // ─── Supabase Methods ───
 
-  private async loadFromSupabase(): Promise<void> {
+  private async loadFromSupabase(isInitial = false): Promise<void> {
     try {
       const { data, error } = await this.supabaseService.client
         .from('work_orders')
@@ -150,15 +171,19 @@ export class WorkOrderService {
 
       if (data && data.length > 0) {
         this.workOrders.set(data);
-      } else {
-        // No data in Supabase, use sample data
+      } else if (isInitial) {
+        // No data in Supabase AND it's the initial load, use sample data
         this.workOrders.set(SAMPLE_WORK_ORDERS);
-        // Optionally seed the database
         await this.seedSupabase();
+      } else {
+        // Real-time update and table is empty, just update UI
+        this.workOrders.set([]);
       }
     } catch (error) {
       console.error('Failed to load work orders from Supabase:', error);
-      this.workOrders.set(SAMPLE_WORK_ORDERS);
+      if (isInitial) {
+        this.workOrders.set(SAMPLE_WORK_ORDERS);
+      }
     }
   }
 
@@ -189,11 +214,42 @@ export class WorkOrderService {
       .subscribe();
   }
 
-  private async persist(): Promise<void> {
+  private async persist(orderToSave?: WorkOrderDocument, docIdToDelete?: string): Promise<void> {
     if (this.useSupabase) {
-      await this.saveToSupabase();
+      if (docIdToDelete) {
+        await this.removeFromSupabase(docIdToDelete);
+      } else if (orderToSave) {
+        await this.saveOrderToSupabase(orderToSave);
+      } else {
+        await this.saveToSupabase();
+      }
     } else {
       this.saveToStorage();
+    }
+  }
+
+  private async saveOrderToSupabase(order: WorkOrderDocument): Promise<void> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('work_orders')
+        .upsert(order, { onConflict: 'docId' });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to save work order to Supabase:', error);
+    }
+  }
+
+  private async removeFromSupabase(docId: string): Promise<void> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('work_orders')
+        .delete()
+        .eq('docId', docId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to delete work order from Supabase:', error);
     }
   }
 

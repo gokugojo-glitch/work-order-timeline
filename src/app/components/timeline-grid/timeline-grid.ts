@@ -5,9 +5,8 @@ import { WorkCenterService } from '../../services/work-center.service';
 import { WorkOrderService } from '../../services/work-order.service';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar';
 import { ContextMenuComponent } from '../context-menu/context-menu';
-import { WorkOrderDialogComponent } from '../work-order-dialog/work-order-dialog';
 import { WorkOrderDocument } from '../../models/work-order.model';
-import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel';
+import { WorkOrderPanelComponent, PanelMode } from '../work-order-panel/work-order-panel';
 
 @Component({
   selector: 'app-timeline-grid',
@@ -17,7 +16,6 @@ import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel';
     WorkOrderBarComponent,
     WorkOrderPanelComponent,
     ContextMenuComponent,
-    WorkOrderDialogComponent,
   ],
   templateUrl: './timeline-grid.html',
   styleUrls: ['./timeline-grid.scss'],
@@ -28,7 +26,8 @@ export class TimelineGridComponent {
   readonly workOrderService = inject(WorkOrderService);
 
   // ─── View Panel ───
-  selectedWorkOrder: WorkOrderDocument | null = null;
+  selectedWorkOrder = signal<WorkOrderDocument | null>(null);
+  panelMode = signal<PanelMode>('view');
 
   // ─── Context Menu State ───
   contextMenuVisible = signal(false);
@@ -37,14 +36,10 @@ export class TimelineGridComponent {
   contextMenuOrder = signal<WorkOrderDocument | null>(null);
 
   // ─── Edit Dialog State ───
-  editDialogVisible = signal(false);
-  editingOrder = signal<WorkOrderDocument | null>(null);
+  // (Removed - now uses right panel)
 
-  // ─── Create Dialog State ───
   // ─── Create State ───
   hoveredRowId = signal('');
-  createDialogVisible = signal(false);
-  createForWorkCenterId = signal('');
   createButtonVisible = signal(false);
   createButtonX = signal(0);
   createButtonY = signal(0);
@@ -98,13 +93,12 @@ export class TimelineGridComponent {
 
   // ─── Bar Click → Open Panel ───
   onBarClicked(order: WorkOrderDocument): void {
-    this.createDialogVisible.set(false);
-    this.editDialogVisible.set(false);
-    this.selectedWorkOrder = order;
+    this.selectedWorkOrder.set(order);
+    this.panelMode.set('view');
   }
 
   closePanel(): void {
-    this.selectedWorkOrder = null;
+    this.selectedWorkOrder.set(null);
   }
 
   // ─── Menu Button Click → Context Menu ───
@@ -126,9 +120,8 @@ export class TimelineGridComponent {
   onContextEdit(): void {
     const order = this.contextMenuOrder();
     if (order) {
-      this.selectedWorkOrder = null;
-      this.editingOrder.set({ ...order });
-      this.editDialogVisible.set(true);
+      this.selectedWorkOrder.set({ ...order });
+      this.panelMode.set('edit');
     }
     this.closeContextMenu();
   }
@@ -139,32 +132,23 @@ export class TimelineGridComponent {
     if (order) {
       if (confirm(`Delete "${order.data.name}"?`)) {
         this.workOrderService.deleteWorkOrder(order.docId);
-        if (this.selectedWorkOrder?.docId === order.docId) {
-          this.selectedWorkOrder = null;
+        if (this.selectedWorkOrder()?.docId === order.docId) {
+          this.selectedWorkOrder.set(null);
         }
       }
     }
     this.closeContextMenu();
   }
 
-  // ─── Edit Dialog Save ───
-  onEditSave(updated: WorkOrderDocument): void {
-    this.workOrderService.updateWorkOrder(updated);
-    this.editDialogVisible.set(false);
-    this.editingOrder.set(null);
-
+  // ─── Panel Actions ───
+  onOrderSaved(updated: WorkOrderDocument): void {
     // Refresh selectedWorkOrder from service to ensure UI updates
-    if (this.selectedWorkOrder?.docId === updated.docId) {
-      this.selectedWorkOrder = this.workOrderService.getWorkOrderById(updated.docId) || null;
-    }
+    const refreshed = this.workOrderService.getWorkOrderById(updated.docId) || updated;
+    this.selectedWorkOrder.set(refreshed);
+    this.panelMode.set('view');
   }
 
-  onEditCancel(): void {
-    this.editDialogVisible.set(false);
-    this.editingOrder.set(null);
-  }
-
-  // ─── Create Dialog ───
+  // ─── Grid Interactions ───
   onEmptySpaceClick(workCenterId: string, event: MouseEvent): void {
     const target = event.target as HTMLElement;
 
@@ -182,24 +166,11 @@ export class TimelineGridComponent {
     const clickY = event.clientY - rect.top;
 
     // Show the create button at click position
-    this.selectedWorkOrder = null;
+    this.selectedWorkOrder.set(null);
     this.createButtonVisible.set(true);
     this.createButtonX.set(clickX);
     this.createButtonY.set(clickY);
     this.createButtonRowId.set(workCenterId);
-  }
-
-  onCreateSave(newOrder: WorkOrderDocument): void {
-    this.workOrderService.addWorkOrder(newOrder);
-    this.createDialogVisible.set(false);
-    this.createForWorkCenterId.set('');
-    // Open the newly created order in the panel
-    this.selectedWorkOrder = this.workOrderService.getWorkOrderById(newOrder.docId) || null;
-  }
-
-  onCreateCancel(): void {
-    this.createDialogVisible.set(false);
-    this.createForWorkCenterId.set('');
   }
 
   // ─── Close context menu and create button on outside click ───
@@ -225,8 +196,26 @@ export class TimelineGridComponent {
   // ─── Create via button ───
   onCreateNew(event: Event, workCenterId: string): void {
     event.stopPropagation(); // Prevent triggering row click
-    this.createForWorkCenterId.set(workCenterId);
-    this.createDialogVisible.set(true);
+
+    // Create a skeleton order to pass to the panel
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    this.selectedWorkOrder.set({
+      docId: '',
+      docType: 'workOrder',
+      data: {
+        name: '',
+        workCenterId: workCenterId,
+        status: 'open',
+        startDate: today.toISOString().split('T')[0],
+        endDate: nextWeek.toISOString().split('T')[0],
+      },
+    });
+
+    this.panelMode.set('create');
     this.createButtonVisible.set(false);
   }
 }
