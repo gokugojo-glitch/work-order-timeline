@@ -5,6 +5,7 @@ import {
 } from '../models/work-order.model';
 import { SAMPLE_WORK_ORDERS } from '../data/sample-data';
 import { SupabaseService } from './supabase.service';
+import { WorkCenterService } from './work-center.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,10 @@ export class WorkOrderService {
   private readonly workOrders = signal<WorkOrderDocument[]>([]);
   private readonly useSupabase: boolean;
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private workCenterService: WorkCenterService,
+  ) {
     this.useSupabase = this.supabaseService.isConfigured();
     this.initialize();
   }
@@ -52,7 +56,14 @@ export class WorkOrderService {
 
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
-      orders = orders.filter((o) => o.data.name.toLowerCase().includes(query));
+      orders = orders.filter((o) => {
+        const orderNameMatches = o.data.name.toLowerCase().includes(query);
+        const workCenterName = this.workCenterService
+          .getWorkCenterName(o.data.workCenterId)
+          .toLowerCase();
+        const workCenterMatches = workCenterName.includes(query);
+        return orderNameMatches || workCenterMatches;
+      });
     }
     return orders;
   });
