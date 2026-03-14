@@ -109,7 +109,9 @@ export class WorkOrderService {
 
   updateWorkOrder(updated: WorkOrderDocument): void {
     this.workOrders.update((orders) =>
-      orders.map((o) => (o.docId === updated.docId ? updated : o)),
+      orders.map((o) =>
+        o.docId === updated.docId ? updated : o
+      )
     );
   }
 }

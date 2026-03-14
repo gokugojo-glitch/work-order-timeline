@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { TimelineService } from '../../services/timeline.service';
 import { WorkCenterService } from '../../services/work-center.service';
 import { WorkOrderService } from '../../services/work-order.service';
-import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel';
-import { WorkOrderDocument } from '../../models/work-order.model';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar';
 import { ContextMenuComponent } from '../context-menu/context-menu';
 import { WorkOrderDialogComponent } from '../work-order-dialog/work-order-dialog';
+import { WorkOrderDocument } from '../../models/work-order.model';
+import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel';
 
 @Component({
   selector: 'app-timeline-grid',
@@ -27,6 +27,7 @@ export class TimelineGridComponent {
   readonly workCenterService = inject(WorkCenterService);
   readonly workOrderService = inject(WorkOrderService);
 
+  // ─── View Panel ───
   selectedWorkOrder: WorkOrderDocument | null = null;
 
   // ─── Context Menu State ───
@@ -40,11 +41,14 @@ export class TimelineGridComponent {
   editingOrder = signal<WorkOrderDocument | null>(null);
 
   // ─── Create Dialog State ───
+  // ─── Create State ───
+  hoveredRowId = signal('');
   createDialogVisible = signal(false);
   createForWorkCenterId = signal('');
 
   readonly ROW_HEIGHT = 44;
 
+  // ─── Computed Data ───
   readonly workCenterRows = computed(() => {
     const centers = this.workCenterService.allWorkCenters();
     const grouped = this.workOrderService.groupedByWorkCenter();
@@ -69,6 +73,7 @@ export class TimelineGridComponent {
     return offset >= 0 && offset <= totalWidth;
   });
 
+  // ─── Helper Methods ───
   isToday(date: Date): boolean {
     return this.timelineService.isToday(date);
   }
@@ -89,6 +94,8 @@ export class TimelineGridComponent {
 
   // ─── Bar Click → Open Panel ───
   onBarClicked(order: WorkOrderDocument): void {
+    this.createDialogVisible.set(false);
+    this.editDialogVisible.set(false);
     this.selectedWorkOrder = order;
   }
 
@@ -96,7 +103,7 @@ export class TimelineGridComponent {
     this.selectedWorkOrder = null;
   }
 
-  // ─── Context Menu (Right-Click) ───
+  // ─── Right-Click → Context Menu ───
   onBarRightClick(event: MouseEvent, order: WorkOrderDocument): void {
     event.preventDefault();
     event.stopPropagation();
@@ -111,15 +118,18 @@ export class TimelineGridComponent {
     this.contextMenuOrder.set(null);
   }
 
+  // ─── Context Menu → Edit ───
   onContextEdit(): void {
     const order = this.contextMenuOrder();
     if (order) {
+      this.selectedWorkOrder = null;
       this.editingOrder.set({ ...order });
       this.editDialogVisible.set(true);
     }
     this.closeContextMenu();
   }
 
+  // ─── Context Menu → Delete ───
   onContextDelete(): void {
     const order = this.contextMenuOrder();
     if (order) {
@@ -133,13 +143,12 @@ export class TimelineGridComponent {
     this.closeContextMenu();
   }
 
-  // ─── Edit Dialog ───
+  // ─── Edit Dialog Save ───
   onEditSave(updated: WorkOrderDocument): void {
     this.workOrderService.updateWorkOrder(updated);
     this.editDialogVisible.set(false);
     this.editingOrder.set(null);
 
-    // Refresh panel if same order is selected
     if (this.selectedWorkOrder?.docId === updated.docId) {
       this.selectedWorkOrder = updated;
     }
@@ -151,7 +160,11 @@ export class TimelineGridComponent {
   }
 
   // ─── Create Dialog ───
-  onCreateNew(workCenterId: string): void {
+  onEmptySpaceClick(workCenterId: string, event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('app-work-order-bar')) return;
+
+    this.selectedWorkOrder = null;
     this.createForWorkCenterId.set(workCenterId);
     this.createDialogVisible.set(true);
   }
@@ -172,5 +185,20 @@ export class TimelineGridComponent {
     if (this.contextMenuVisible()) {
       this.closeContextMenu();
     }
+  }
+
+  // ─── Hover ───
+  onRowMouseEnter(workCenterId: string): void {
+    this.hoveredRowId.set(workCenterId);
+  }
+
+  onRowMouseLeave(): void {
+    this.hoveredRowId.set('');
+  }
+
+  // ─── Create via button ───
+  onCreateNew(workCenterId: string): void {
+    this.createForWorkCenterId.set(workCenterId);
+    this.createDialogVisible.set(true);
   }
 }

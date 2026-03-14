@@ -92,6 +92,9 @@
           <div
             class="grid-row"
             [style.height.px]="ROW_HEIGHT"
+            (mouseenter)="onRowMouseEnter(row.workCenter.docId)"
+            (mouseleave)="onRowMouseLeave()"
+            (dblclick)="onEmptySpaceClick(row.workCenter.docId, $event)"
           >
             @for (order of row.orders; track order.docId) {
               <app-work-order-bar
@@ -100,6 +103,17 @@
                 (barRightClicked)="onBarRightClick($event.event, $event.order)"
               />
             }
+
+            <!-- Create button on hover -->
+            @if (hoveredRowId() === row.workCenter.docId) {
+              <button
+                class="create-order-btn"
+                (click)="onCreateNew(row.workCenter.docId)"
+                title="Create new work order"
+              >
+                + New Order
+              </button>
+            }
           </div>
         }
       </div>
@@ -107,7 +121,7 @@
   </div>
 </div>
 
-<!-- Detail Panel (click on bar) -->
+<!-- ─── Detail Panel (click on bar) ─── -->
 @if (selectedWorkOrder) {
   <app-work-order-panel
     [workOrder]="selectedWorkOrder"
@@ -115,7 +129,7 @@
   />
 }
 
-<!-- Context Menu (right-click on bar) -->
+<!-- ─── Context Menu (right-click on bar) ─── -->
 @if (contextMenuVisible()) {
   <app-context-menu
     [x]="contextMenuX()"
@@ -125,7 +139,7 @@
   />
 }
 
-<!-- Edit Dialog -->
+<!-- ─── Edit Dialog ─── -->
 @if (editDialogVisible()) {
   <app-work-order-dialog
     [workOrder]="editingOrder()"
@@ -134,7 +148,7 @@
   />
 }
 
-<!-- Create Dialog -->
+<!-- ─── Create Dialog ─── -->
 @if (createDialogVisible()) {
   <app-work-order-dialog
     [workOrder]="null"
