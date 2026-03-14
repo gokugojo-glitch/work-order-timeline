@@ -10,6 +10,9 @@ import { ZoomLevel } from '../../models/work-order.model';
   templateUrl: './timescale-selector.html',
   styleUrls: ['./timescale-selector.scss'],
 })
+/*
+* renders navigation bar between toolbar and the grid
+* like Today    Day Week Month*/
 export class TimescaleSelectorComponent {
   readonly timelineService = inject(TimelineService);
 

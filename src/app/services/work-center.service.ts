@@ -5,6 +5,20 @@ import { SAMPLE_WORK_CENTERS } from '../data/sample-data';
 @Injectable({
   providedIn: 'root',
 })
+/*
+ * Stores work centers and provides lookups.
+ * */
+/*
+* WorkCenterService
+       │
+       ├──► TimelineGridComponent
+       │      uses allWorkCenters()
+       │      to build sidebar rows
+       │
+       └──► WorkOrderPanelComponent
+              uses getWorkCenterName('wc-2')
+              to show "CNC Machine 1" in panel
+* */
 export class WorkCenterService {
   private readonly workCenters = signal<WorkCenterDocument[]>(SAMPLE_WORK_CENTERS);
 
@@ -19,6 +33,10 @@ export class WorkCenterService {
     return wc ? wc.data.name : 'Unknown';
   }
 
+  /*
+  * Can add work center CRUD without
+   touching work order logic - the only reason why this is a separate service!
+  * */
   addWorkCenter(name: string): void {
     const newId = `wc-${Date.now()}`;
     const newWc: WorkCenterDocument = {

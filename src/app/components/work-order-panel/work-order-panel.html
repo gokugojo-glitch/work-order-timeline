@@ -3,16 +3,47 @@
   <!-- Header -->
   <div class="panel-header">
     <div class="panel-title-row">
-      <h3 class="panel-title">{{ workOrder().data.name }}</h3>
-      <button class="close-btn" (click)="close()" title="Close">
+      <h3 class="panel-title">
+        @if (mode() === 'create') {
+          Create Work Order
+        } @else if (mode() === 'edit') {
+          Edit Work Order
+        } @else {
+          {{ workOrder().data.name }}
+        }
+      </h3>
+      <button
+        class="close-btn"
+        (click)="close()"
+        title="Close"
+      >
         &times;
       </button>
     </div>
-    <span class="panel-id">{{ workOrder().docId }}</span>
+    @if (mode() === 'view') {
+      <span class="panel-id">{{ workOrder().docId }}</span>
+    }
   </div>
 
   <!-- Body -->
   <div class="panel-body">
+    <!-- Name -->
+    <div class="panel-field">
+      <label class="field-label">Name</label>
+      @if (mode() === 'view') {
+        <div class="field-value">
+          {{ workOrder().data.name }}
+        </div>
+      } @else {
+        <input
+          type="text"
+          class="field-input"
+          placeholder="Enter work order name..."
+          [(ngModel)]="formName"
+        />
+      }
+    </div>
+
     <!-- Status -->
     <div class="panel-field">
       <label class="field-label">Status</label>
@@ -20,22 +51,32 @@
         @for (option of statusOptions; track option.value) {
           <button
             class="status-chip"
-            [class.active]="workOrder().data.status === option.value"
+            [class.active]="
+              mode() === 'view'
+                ? workOrder().data.status === option.value
+                : formStatus === option.value
+            "
             [ngStyle]="{
               backgroundColor:
-                workOrder().data.status === option.value
+                (mode() === 'view'
+                  ? workOrder().data.status
+                  : formStatus) === option.value
                   ? option.bgColor
                   : '#f3f4f6',
               color:
-                workOrder().data.status === option.value
+                (mode() === 'view'
+                  ? workOrder().data.status
+                  : formStatus) === option.value
                   ? option.color
                   : '#6b7280',
               borderColor:
-                workOrder().data.status === option.value
+                (mode() === 'view'
+                  ? workOrder().data.status
+                  : formStatus) === option.value
                   ? option.color
                   : 'transparent'
             }"
-            (click)="onStatusChange(option.value)"
+            (click)="onStatusChipClick(option.value)"
           >
             <span
               class="chip-dot"
@@ -50,32 +91,102 @@
     <!-- Work Center -->
     <div class="panel-field">
       <label class="field-label">Work Center</label>
-      <div class="field-value">{{ workCenterName() }}</div>
+      @if (mode() === 'view') {
+        <div class="field-value">
+          {{ workCenterName() }}
+        </div>
+      } @else {
+        <select
+          class="field-select"
+          [(ngModel)]="formWorkCenterId"
+        >
+          @for (wc of workCenters(); track wc.docId) {
+            <option [value]="wc.docId">
+              {{ wc.data.name }}
+            </option>
+          }
+        </select>
+      }
     </div>
 
     <!-- Dates -->
     <div class="panel-field-row">
       <div class="panel-field">
         <label class="field-label">Start Date</label>
-        <div class="field-value">{{ formattedStart() }}</div>
+        @if (mode() === 'view') {
+          <div class="field-value">
+            {{ formattedStart() }}
+          </div>
+        } @else {
+          <input
+            type="date"
+            class="field-input"
+            [(ngModel)]="formStartDate"
+          />
+        }
       </div>
       <div class="panel-field">
         <label class="field-label">End Date</label>
-        <div class="field-value">{{ formattedEnd() }}</div>
+        @if (mode() === 'view') {
+          <div class="field-value">
+            {{ formattedEnd() }}
+          </div>
+        } @else {
+          <input
+            type="date"
+            class="field-input"
+            [(ngModel)]="formEndDate"
+          />
+        }
       </div>
     </div>
+
+    <!-- Date Error -->
+    @if (mode() !== 'view' && dateError()) {
+      <div class="error-msg">
+        End date must be after start date
+      </div>
+    }
 
     <!-- Duration -->
     <div class="panel-field">
       <label class="field-label">Duration</label>
-      <div class="field-value">{{ duration() }} day{{ duration() > 1 ? 's' : '' }}</div>
+      <div class="field-value">
+        {{ duration() }} day{{ duration() > 1 ? 's' : '' }}
+      </div>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="panel-footer">
-    <button class="delete-btn" (click)="onDelete()">
-      🗑 Delete Work Order
-    </button>
+    @if (mode() === 'view') {
+      <!-- View Mode: Edit + Delete -->
+      <div class="footer-actions">
+        <button class="edit-btn" (click)="onEdit()">
+          ✏️ Edit
+        </button>
+        <button class="delete-btn" (click)="onDelete()">
+          🗑 Delete
+        </button>
+      </div>
+    } @else {
+      <!-- Create/Edit Mode: Cancel + Save -->
+      <div class="footer-actions">
+        <button class="cancel-btn" (click)="onCancel()">
+          Cancel
+        </button>
+        <button
+          class="save-btn"
+          [disabled]="!isFormValid()"
+          (click)="onSave()"
+        >
+          @if (mode() === 'create') {
+            Create Order
+          } @else {
+            Save Changes
+          }
+        </button>
+      </div>
+    }
   </div>
 </div>
