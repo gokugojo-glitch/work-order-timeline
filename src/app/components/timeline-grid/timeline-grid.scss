@@ -220,15 +220,13 @@
 // ─── CREATE BUTTON ───
 .create-order-btn {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   z-index: 5;
   height: 28px;
   padding: 0 12px;
   border: 1px dashed #9ca3af;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #6b7280;
   font-size: 12px;
   font-weight: 500;
@@ -236,11 +234,14 @@
   transition: all 0.15s ease;
   backdrop-filter: blur(4px);
   animation: fadeIn 0.15s ease;
+  pointer-events: auto;
+  white-space: nowrap;
 
   &:hover {
     border-color: #3b82f6;
     color: #3b82f6;
     background: rgba(239, 246, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
   }
 }
 

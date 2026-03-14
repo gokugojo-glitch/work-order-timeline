@@ -1,4 +1,4 @@
-import { Component, inject, input, output, computed } from '@angular/core';
+import { Component, inject, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WorkOrderDocument, STATUS_COLOR_MAP } from '../../models/work-order.model';
 import { TimelineService } from '../../services/timeline.service';
@@ -16,10 +16,13 @@ export class WorkOrderBarComponent {
   private readonly timelineService = inject(TimelineService);
   readonly workOrder = input.required<WorkOrderDocument>();
   readonly barClicked = output<WorkOrderDocument>();
-  readonly barRightClicked = output<{
+  readonly menuOpened = output<{
     event: MouseEvent;
     order: WorkOrderDocument;
   }>();
+
+  // Menu state
+  menuVisible = signal(false);
   /*
 * This single computed does 4 things:
 * LEFT position → where bar starts
@@ -73,13 +76,18 @@ export class WorkOrderBarComponent {
     return width > 60;
   });
   // when user clicks the bar, emits the work order --> parent(TimelineGridComponent) receives it --> Opens the detail panel
-  onClick(): void {
+  onClick(event: MouseEvent): void {
+    // Don't open panel if clicking on menu button
+    const target = event.target as HTMLElement;
+    if (target.closest('.menu-button')) {
+      return;
+    }
     this.barClicked.emit(this.workOrder());
   }
-  onRightClick(event: MouseEvent): void {
-    event.preventDefault();
+
+  onMenuClick(event: MouseEvent): void {
     event.stopPropagation();
-    this.barRightClicked.emit({
+    this.menuOpened.emit({
       event,
       order: this.workOrder(),
     });
