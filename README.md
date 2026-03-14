@@ -1,59 +1,70 @@
-# WorkOrderTimeline
+# Work Order Timeline
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+A real-time work order management application built with Angular and Supabase. Visualize, create, and manage work orders across different work centers with a reactive timeline interface.
 
-## Development server
+Generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
 
-To start a local development server, run:
+## 🚀 Quick Start
 
+### 1. Installation
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### 2. Run Development Server
 ```bash
-ng generate component component-name
+npm start
+```
+Navigate to `http://localhost:4200/`. The app will automatically reload when you modify source files.
+
+### 3. Setup Supabase (Optional)
+By default, the app uses `localStorage`. To enable cloud synchronization and real-time updates, see [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
+
+## 🧪 Testing
+
+### Unit Tests
+This project uses **Vitest** for unit testing.
+```bash
+npm test
+```
+> [!IMPORTANT]
+> **Junie** (AI Assistant) was used for writing and refactoring the comprehensive test cases in this project.
+
+### End-to-End Tests
+For end-to-end testing with Playwright:
+```bash
+npm run e2e
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+## 🏗️ Build
+To create a production-ready build:
 ```bash
-ng generate --help
+npm run build
 ```
+Build artifacts are stored in the `dist/` directory.
 
-## Building
+## 🛠️ Key Features
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Interactive Timeline**: A dynamic, grid-based visual representation of work orders across multiple work centers.
+  - Fixed sidebar with real-time order counts per work center.
+  - Smooth horizontal scrolling for exploring long-term schedules.
+- **Real-time Synchronization**: Instant multi-user updates powered by Supabase Realtime.
+  - Automatic fallback to `localStorage` for zero-configuration local development.
+- **Advanced Search & Filtering**:
+  - Filter orders by name or work center name simultaneously.
+  - Quick filters for status (Open, In Progress, Complete, Blocked) to declutter the view.
+- **Comprehensive Work Order Management**:
+  - **Create**: Quickly add new orders by clicking any empty space on the grid to pre-assign work center and dates.
+  - **Edit**: Dedicated detail panel for updating name, status, and dates with built-in range validation.
+  - **Delete**: Instant removal via the context menu or detail panel.
+- **Flexible Time Navigation**:
+  - **Dynamic Zoom**: Toggle between **Day**, **Week**, and **Month** views.
+  - **Easy Browsing**: Jump to **Today** or navigate chronologically with intuitive controls.
+- **Contextual UI/UX Enhancements**:
+  - Right-click (or menu button) for quick access to common actions.
+  - Visual today marker and weekend highlighting for easier planning.
+  - Informative tooltips on work order bars.
+- **Modern Architecture**:
+  - Built with **Angular 19+** using **Signals** for fine-grained reactivity and optimized performance.
+  - Fully standalone component architecture for clean and modular code.
+- **Auto-Seeding**: Automatically populates with sample data if the database is empty, making it ready for immediate demonstration.

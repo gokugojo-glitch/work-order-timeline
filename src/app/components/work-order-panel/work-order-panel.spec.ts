@@ -1,4 +1,6 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { WorkOrderPanelComponent } from './work-order-panel';
 import { WorkOrderDocument } from '../../models/work-order.model';
 import { WorkOrderService } from '../../services/work-order.service';
@@ -23,8 +25,16 @@ describe('WorkOrderPanelComponent', () => {
   };
 
   beforeEach(async () => {
+    const wcServiceMock = {
+      allWorkCenters: signal([{ docId: 'wc-1', data: { name: 'Extrusion Line A' } }]),
+      getWorkCenterName: (id: string) => id === 'wc-1' ? 'Extrusion Line A' : 'Unknown',
+    };
+
     await TestBed.configureTestingModule({
       imports: [WorkOrderPanelComponent],
+      providers: [
+        { provide: WorkCenterService, useValue: wcServiceMock },
+      ],
     }).compileComponents();
 
     workOrderService = TestBed.inject(WorkOrderService);
@@ -104,13 +114,13 @@ describe('WorkOrderPanelComponent', () => {
   // ─── CLOSE PANEL ───
 
   it('should emit closePanel on close', () => {
-    spyOn(component.closePanel, 'emit');
+    vi.spyOn(component.closePanel, 'emit');
     component.close();
     expect(component.closePanel.emit).toHaveBeenCalled();
   });
 
   it('should emit closePanel on overlay click', () => {
-    spyOn(component.closePanel, 'emit');
+    vi.spyOn(component.closePanel, 'emit');
     const el = fixture.nativeElement;
     const overlay = el.querySelector('.panel-overlay');
     overlay.click();
@@ -118,7 +128,7 @@ describe('WorkOrderPanelComponent', () => {
   });
 
   it('should emit closePanel on close button click', () => {
-    spyOn(component.closePanel, 'emit');
+    vi.spyOn(component.closePanel, 'emit');
     const el = fixture.nativeElement;
     const closeBtn = el.querySelector('.close-btn');
     closeBtn.click();
@@ -176,7 +186,8 @@ describe('WorkOrderPanelComponent', () => {
   it('should render work center name', () => {
     const el = fixture.nativeElement;
     const fields = el.querySelectorAll('.field-value');
-    const wcField = fields[0];
+    // Name is fields[0], Work Center is fields[1]
+    const wcField = fields[1];
     expect(wcField.textContent.trim()).toBe('Extrusion Line A');
   });
 
@@ -208,7 +219,7 @@ describe('WorkOrderPanelComponent', () => {
   // ─── STATUS CHIP CLICK ───
 
   it('should change status on chip click', () => {
-    spyOn(workOrderService, 'updateWorkOrderStatus');
+    vi.spyOn(workOrderService, 'updateWorkOrderStatus');
     const el = fixture.nativeElement;
     const chips = el.querySelectorAll('.status-chip');
 
@@ -221,7 +232,7 @@ describe('WorkOrderPanelComponent', () => {
   });
 
   it('should change status to open on chip click', () => {
-    spyOn(workOrderService, 'updateWorkOrderStatus');
+    vi.spyOn(workOrderService, 'updateWorkOrderStatus');
     const el = fixture.nativeElement;
     const chips = el.querySelectorAll('.status-chip');
 
@@ -236,9 +247,9 @@ describe('WorkOrderPanelComponent', () => {
   // ─── DELETE VIA DOM ───
 
   it('should delete on button click with confirm', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
-    spyOn(workOrderService, 'deleteWorkOrder');
-    spyOn(component.closePanel, 'emit');
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(workOrderService, 'deleteWorkOrder');
+    vi.spyOn(component.closePanel, 'emit');
 
     const el = fixture.nativeElement;
     const deleteBtn = el.querySelector('.delete-btn');
@@ -250,8 +261,8 @@ describe('WorkOrderPanelComponent', () => {
   });
 
   it('should not delete on button click with cancel', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
-    spyOn(workOrderService, 'deleteWorkOrder');
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    vi.spyOn(workOrderService, 'deleteWorkOrder');
 
     const el = fixture.nativeElement;
     const deleteBtn = el.querySelector('.delete-btn');

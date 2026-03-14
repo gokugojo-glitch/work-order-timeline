@@ -31,7 +31,8 @@ export class WorkCenterService {
 
   private async initialize(): Promise<void> {
     if (this.useSupabase) {
-      await this.loadFromSupabase();
+      await this.loadFromSupabase(true);
+      this.subscribeToChanges();
     } else {
       this.workCenters.set(SAMPLE_WORK_CENTERS);
     }
@@ -60,12 +61,12 @@ export class WorkCenterService {
       data: { name },
     };
     this.workCenters.update((centers) => [...centers, newWc]);
-    this.persist();
+    this.persist(newWc);
   }
 
   // ─── Supabase Methods ───
 
-  private async loadFromSupabase(): Promise<void> {
+  private async loadFromSupabase(isInitial = false): Promise<void> {
     try {
       const { data, error } = await this.supabaseService.client
         .from('work_centers')
@@ -76,15 +77,19 @@ export class WorkCenterService {
 
       if (data && data.length > 0) {
         this.workCenters.set(data);
-      } else {
-        // No data in Supabase, use sample data
+      } else if (isInitial) {
+        // No data in Supabase AND it's the initial load, use sample data
         this.workCenters.set(SAMPLE_WORK_CENTERS);
-        // Seed the database
         await this.seedSupabase();
+      } else {
+        // Real-time update and table is empty, just update UI
+        this.workCenters.set([]);
       }
     } catch (error) {
       console.error('Failed to load work centers from Supabase:', error);
-      this.workCenters.set(SAMPLE_WORK_CENTERS);
+      if (isInitial) {
+        this.workCenters.set(SAMPLE_WORK_CENTERS);
+      }
     }
   }
 
@@ -101,9 +106,54 @@ export class WorkCenterService {
     }
   }
 
-  private async persist(): Promise<void> {
+  private subscribeToChanges(): void {
+    this.supabaseService.client
+      .channel('work_centers_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'work_centers' },
+        async (payload) => {
+          console.log('Work center change detected:', payload);
+          await this.loadFromSupabase();
+        }
+      )
+      .subscribe();
+  }
+
+  private async persist(centerToSave?: WorkCenterDocument, docIdToDelete?: string): Promise<void> {
     if (this.useSupabase) {
-      await this.saveToSupabase();
+      if (docIdToDelete) {
+        await this.removeFromSupabase(docIdToDelete);
+      } else if (centerToSave) {
+        await this.saveCenterToSupabase(centerToSave);
+      } else {
+        await this.saveToSupabase();
+      }
+    }
+  }
+
+  private async saveCenterToSupabase(center: WorkCenterDocument): Promise<void> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('work_centers')
+        .upsert(center, { onConflict: 'docId' });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to save work center to Supabase:', error);
+    }
+  }
+
+  private async removeFromSupabase(docId: string): Promise<void> {
+    try {
+      const { error } = await this.supabaseService.client
+        .from('work_centers')
+        .delete()
+        .eq('docId', docId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Failed to delete work center from Supabase:', error);
     }
   }
 

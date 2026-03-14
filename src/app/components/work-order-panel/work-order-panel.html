@@ -39,7 +39,8 @@
           type="text"
           class="field-input"
           placeholder="Enter work order name..."
-          [(ngModel)]="formName"
+          [ngModel]="formName()"
+          (ngModelChange)="formName.set($event)"
         />
       }
     </div>
@@ -54,25 +55,25 @@
             [class.active]="
               mode() === 'view'
                 ? currentWorkOrder().data.status === option.value
-                : formStatus === option.value
+                : formStatus() === option.value
             "
             [ngStyle]="{
               backgroundColor:
                 (mode() === 'view'
                   ? currentWorkOrder().data.status
-                  : formStatus) === option.value
+                  : formStatus()) === option.value
                   ? option.bgColor
                   : '#f3f4f6',
               color:
                 (mode() === 'view'
                   ? currentWorkOrder().data.status
-                  : formStatus) === option.value
+                  : formStatus()) === option.value
                   ? option.color
                   : '#6b7280',
               borderColor:
                 (mode() === 'view'
                   ? currentWorkOrder().data.status
-                  : formStatus) === option.value
+                  : formStatus()) === option.value
                   ? option.color
                   : 'transparent'
             }"
@@ -98,7 +99,8 @@
       } @else {
         <select
           class="field-select"
-          [(ngModel)]="formWorkCenterId"
+          [ngModel]="formWorkCenterId()"
+          (ngModelChange)="formWorkCenterId.set($event)"
         >
           @for (wc of workCenters(); track wc.docId) {
             <option [value]="wc.docId">
@@ -121,7 +123,8 @@
           <input
             type="date"
             class="field-input"
-            [(ngModel)]="formStartDate"
+            [ngModel]="formStartDate()"
+            (ngModelChange)="formStartDate.set($event)"
           />
         }
       </div>
@@ -135,7 +138,8 @@
           <input
             type="date"
             class="field-input"
-            [(ngModel)]="formEndDate"
+            [ngModel]="formEndDate()"
+            (ngModelChange)="formEndDate.set($event)"
           />
         }
       </div>

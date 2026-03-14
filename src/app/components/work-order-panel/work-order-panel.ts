@@ -55,11 +55,11 @@ export class WorkOrderPanelComponent implements OnInit {
   });
 
   // Form fields
-  formName = '';
-  formWorkCenterId = '';
-  formStatus: WorkOrderStatus = 'open';
-  formStartDate = '';
-  formEndDate = '';
+  formName = signal('');
+  formWorkCenterId = signal('');
+  formStatus = signal<WorkOrderStatus>('open');
+  formStartDate = signal('');
+  formEndDate = signal('');
 
   // ─── Computed (View Mode) ───
 
@@ -79,8 +79,8 @@ export class WorkOrderPanelComponent implements OnInit {
   readonly formattedEnd = computed(() => this.formatDate(this.currentWorkOrder().data.endDate));
 
   readonly duration = computed(() => {
-    const s = this.mode() === 'view' ? this.currentWorkOrder().data.startDate : this.formStartDate;
-    const e = this.mode() === 'view' ? this.currentWorkOrder().data.endDate : this.formEndDate;
+    const s = this.mode() === 'view' ? this.currentWorkOrder().data.startDate : this.formStartDate();
+    const e = this.mode() === 'view' ? this.currentWorkOrder().data.endDate : this.formEndDate();
     if (!s || !e) return 0;
     const start = new Date(s + 'T00:00:00');
     const end = new Date(e + 'T00:00:00');
@@ -89,16 +89,16 @@ export class WorkOrderPanelComponent implements OnInit {
   });
 
   readonly dateError = computed(
-    () => !!(this.formStartDate && this.formEndDate && this.formStartDate > this.formEndDate),
+    () => !!(this.formStartDate() && this.formEndDate() && this.formStartDate() > this.formEndDate()),
   );
 
   readonly isFormValid = computed(
     () =>
       !!(
-        this.formName.trim() &&
-        this.formWorkCenterId &&
-        this.formStartDate &&
-        this.formEndDate &&
+        this.formName().trim() &&
+        this.formWorkCenterId() &&
+        this.formStartDate() &&
+        this.formEndDate() &&
         !this.dateError()
       ),
   );
@@ -133,11 +133,11 @@ export class WorkOrderPanelComponent implements OnInit {
 
   private populateForm(): void {
     const d = this.currentWorkOrder().data;
-    this.formName = d.name;
-    this.formWorkCenterId = d.workCenterId;
-    this.formStatus = d.status;
-    this.formStartDate = d.startDate;
-    this.formEndDate = d.endDate;
+    this.formName.set(d.name);
+    this.formWorkCenterId.set(d.workCenterId);
+    this.formStatus.set(d.status);
+    this.formStartDate.set(d.startDate);
+    this.formEndDate.set(d.endDate);
   }
 
   private initCreateForm(): void {
@@ -145,21 +145,22 @@ export class WorkOrderPanelComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    this.formName = initial.data.name || '';
-    this.formStatus = initial.data.status || 'open';
-    this.formStartDate = initial.data.startDate || today.toISOString().split('T')[0];
+    this.formName.set(initial.data.name || '');
+    this.formStatus.set(initial.data.status || 'open');
+    this.formStartDate.set(initial.data.startDate || today.toISOString().split('T')[0]);
 
     if (initial.data.endDate) {
-      this.formEndDate = initial.data.endDate;
+      this.formEndDate.set(initial.data.endDate);
     } else {
-      const next = new Date(this.formStartDate + 'T00:00:00');
+      const next = new Date(this.formStartDate() + 'T00:00:00');
       next.setDate(next.getDate() + 7);
-      this.formEndDate = next.toISOString().split('T')[0];
+      this.formEndDate.set(next.toISOString().split('T')[0]);
     }
 
-    this.formWorkCenterId =
+    this.formWorkCenterId.set(
       initial.data.workCenterId ||
-      (this.workCenters().length > 0 ? this.workCenters()[0].docId : '');
+      (this.workCenters().length > 0 ? this.workCenters()[0].docId : ''),
+    );
   }
 
   // ─── Actions ───
@@ -185,11 +186,11 @@ export class WorkOrderPanelComponent implements OnInit {
       docId: this.mode() === 'create' ? `wo-${Date.now()}` : existing.docId,
       docType: 'workOrder',
       data: {
-        name: this.formName.trim(),
-        workCenterId: this.formWorkCenterId,
-        status: this.formStatus,
-        startDate: this.formStartDate,
-        endDate: this.formEndDate,
+        name: this.formName().trim(),
+        workCenterId: this.formWorkCenterId(),
+        status: this.formStatus(),
+        startDate: this.formStartDate(),
+        endDate: this.formEndDate(),
       },
     };
 
@@ -216,7 +217,7 @@ export class WorkOrderPanelComponent implements OnInit {
     if (this.mode() === 'view') {
       this.woService.updateWorkOrderStatus(this.currentWorkOrder().docId, status);
     } else {
-      this.formStatus = status;
+      this.formStatus.set(status);
     }
   }
 
