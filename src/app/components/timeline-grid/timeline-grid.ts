@@ -149,8 +149,9 @@ export class TimelineGridComponent {
     this.editDialogVisible.set(false);
     this.editingOrder.set(null);
 
+    // Refresh selectedWorkOrder from service to ensure UI updates
     if (this.selectedWorkOrder?.docId === updated.docId) {
-      this.selectedWorkOrder = updated;
+      this.selectedWorkOrder = this.workOrderService.getWorkOrderById(updated.docId) || null;
     }
   }
 
@@ -173,6 +174,8 @@ export class TimelineGridComponent {
     this.workOrderService.addWorkOrder(newOrder);
     this.createDialogVisible.set(false);
     this.createForWorkCenterId.set('');
+    // Open the newly created order in the panel
+    this.selectedWorkOrder = this.workOrderService.getWorkOrderById(newOrder.docId) || null;
   }
 
   onCreateCancel(): void {
