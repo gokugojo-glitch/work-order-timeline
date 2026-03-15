@@ -7,6 +7,16 @@ A real-time work order management application built with Angular and Supabase. V
 - **IMPL**: [https://work-order-timeline-impl.vercel.app/](https://work-order-timeline-impl.vercel.app/)
 - **DEV**: [https://work-order-timeline-dev.vercel.app/](https://work-order-timeline-dev.vercel.app/)
 
+## 💻 Device Support
+
+> [!WARNING]
+> This application is currently optimized for **Desktop/PC** environments only. It is not currently mobile-friendly.
+
+### Reasoning:
+- **Grid-Based Layout**: The interactive timeline requires substantial screen width to display multiple work centers and a readable schedule simultaneously.
+- **Precision Tapping**: Creating and managing work order bars involves small targets and grid-based clicking that are difficult to execute accurately on touchscreens.
+- **Fixed Sidebar**: The persistent sidebar providing work center context consumes significant screen real estate on narrow mobile displays.
+
 Generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
 
 ## 🚀 Quick Start
