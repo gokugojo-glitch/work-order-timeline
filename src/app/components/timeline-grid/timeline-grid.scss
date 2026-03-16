@@ -3,6 +3,11 @@
   flex: 1;
   overflow: hidden;
   background: #ffffff;
+
+  @media (max-width: 768px) {
+    position: relative;
+    height: 100%;
+  }
 }
 
 // ─── LEFT SIDEBAR ───
@@ -49,6 +54,16 @@
 
 .sidebar-body {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  @media (max-width: 768px) {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .sidebar-row {
@@ -107,6 +122,19 @@
   overflow-x: auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+
+  @media (max-width: 768px) {
+    position: relative;
+    will-change: scroll-position;
+    transform: translateZ(0);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .grid-inner {
@@ -121,6 +149,12 @@
   z-index: 5;
   background: #fafbfc;
   border-bottom: 1px solid #e5e7eb;
+
+  @media (max-width: 768px) {
+    position: -webkit-sticky;
+    transform: translateZ(0);
+    will-change: transform;
+  }
 }
 
 .month-row {

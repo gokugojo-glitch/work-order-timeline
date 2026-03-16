@@ -5,8 +5,10 @@
   background: #f9fafb;
 
   @media (max-width: 768px) {
-    height: auto;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
   }
 }
 
