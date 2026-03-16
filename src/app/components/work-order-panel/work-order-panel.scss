@@ -22,6 +22,11 @@
   display: flex;
   flex-direction: column;
   animation: slideIn 0.2s ease-out;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    left: 0;
+  }
 }
 
 @keyframes slideIn {
@@ -72,6 +77,12 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
 
   &:hover {
     background: #e5e7eb;
@@ -136,6 +147,11 @@
   transition: all 0.15s ease;
   font-family: inherit;
 
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 16px;
+  }
+
   &:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -171,6 +187,11 @@
   background-position: right 12px center;
   padding-right: 32px;
   transition: all 0.15s ease;
+
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 16px;
+  }
 
   &:focus {
     border-color: #3b82f6;
@@ -287,6 +308,11 @@
   cursor: pointer;
   transition: all 0.15s ease;
 
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 15px;
+  }
+
   &:hover {
     background: #f3f4f6;
     border-color: #9ca3af;
@@ -305,6 +331,11 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 15px;
+  }
 
   &:hover {
     background: #2563eb;

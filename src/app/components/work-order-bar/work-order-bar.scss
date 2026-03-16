@@ -13,12 +13,26 @@
   overflow: visible;
   white-space: nowrap;
 
+  @media (max-width: 768px) {
+    height: 40px;
+    top: 2px;
+    padding: 0 10px;
+    padding-right: 6px;
+  }
+
   &:hover {
     filter: brightness(0.95);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transform: translateY(-1px);
     z-index: 10;
 
+    .menu-button {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (max-width: 768px) {
     .menu-button {
       opacity: 1;
       pointer-events: auto;
@@ -69,6 +83,12 @@
   transition: all 0.15s ease;
   padding: 0;
   line-height: 1;
+
+  @media (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 1);

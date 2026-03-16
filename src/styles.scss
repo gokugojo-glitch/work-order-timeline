@@ -45,3 +45,14 @@ body {
   background: #bfdbfe;
   color: #1e3a5f;
 }
+
+// Mobile viewport fix
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+// Responsive breakpoints
+$mobile-small: 480px;
+$mobile: 768px;
+$tablet: 1024px;
