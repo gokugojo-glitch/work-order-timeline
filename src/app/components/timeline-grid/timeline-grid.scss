@@ -3,6 +3,11 @@
   flex: 1;
   overflow: hidden;
   background: #ffffff;
+
+  @media (max-width: 768px) {
+    position: relative;
+    height: 100%;
+  }
 }
 
 // ─── LEFT SIDEBAR ───
@@ -14,6 +19,16 @@
   flex-direction: column;
   background: #fafbfc;
   z-index: 10;
+
+  @media (max-width: 768px) {
+    width: 120px;
+    min-width: 120px;
+  }
+
+  @media (max-width: 480px) {
+    width: 90px;
+    min-width: 90px;
+  }
 }
 
 .sidebar-header {
@@ -39,6 +54,16 @@
 
 .sidebar-body {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  @media (max-width: 768px) {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .sidebar-row {
@@ -48,9 +73,18 @@
   padding: 0 16px;
   border-bottom: 1px solid #f0f0f0;
   transition: background 0.1s ease;
+  min-height: 44px;
 
   &:hover {
     background: #f3f4f6;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 8px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 6px;
   }
 }
 
@@ -61,6 +95,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+  }
 }
 
 .wc-count {
@@ -79,6 +121,20 @@
   flex: 1;
   overflow-x: auto;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+
+  @media (max-width: 768px) {
+    position: relative;
+    will-change: scroll-position;
+    transform: translateZ(0);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }
 
 .grid-inner {
@@ -93,6 +149,12 @@
   z-index: 5;
   background: #fafbfc;
   border-bottom: 1px solid #e5e7eb;
+
+  @media (max-width: 768px) {
+    position: -webkit-sticky;
+    transform: translateZ(0);
+    will-change: transform;
+  }
 }
 
 .month-row {
@@ -113,6 +175,11 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   padding: 0 8px;
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+    padding: 0 4px;
+  }
 }
 
 .day-row {
@@ -146,6 +213,10 @@
   .today & {
     color: #3b82f6;
   }
+
+  @media (max-width: 768px) {
+    font-size: 8px;
+  }
 }
 
 .day-number {
@@ -155,6 +226,10 @@
 
   .today & {
     color: #2563eb;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 10px;
   }
 }
 
@@ -215,6 +290,10 @@
 .grid-row {
   position: relative;
   border-bottom: 1px solid #f0f0f0;
+
+  @media (max-width: 768px) {
+    min-height: 48px;
+  }
 }
 
 // ─── CREATE BUTTON ───
@@ -236,6 +315,12 @@
   animation: fadeIn 0.15s ease;
   pointer-events: auto;
   white-space: nowrap;
+
+  @media (max-width: 768px) {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 13px;
+  }
 
   &:hover {
     border-color: #3b82f6;
