@@ -26,6 +26,9 @@
   @media (max-width: 768px) {
     width: 100%;
     left: 0;
+    height: 100vh;
+    height: 100dvh;
+    max-height: -webkit-fill-available;
   }
 }
 
@@ -95,6 +98,14 @@
   padding: 24px;
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  min-height: 0;
+
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+    padding-bottom: 24px;
+  }
 }
 
 // ─── FIELDS ───
@@ -249,12 +260,23 @@
 .panel-footer {
   padding: 16px 24px;
   border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  background: #ffffff;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
 }
 
 .footer-actions {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
 }
 
 // ─── VIEW MODE BUTTONS ───
@@ -269,6 +291,14 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   &:hover {
     background: #dbeafe;
@@ -287,6 +317,14 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+
+  @media (max-width: 768px) {
+    height: 48px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   &:hover {
     background: #fee2e2;
